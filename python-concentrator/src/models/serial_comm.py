@@ -1,7 +1,6 @@
 import serial
 import threading
 from config.constants import PORT, B_RATE, SER_TIMEOUT
-# from time import sleep
 
 
 class SerialComm:
@@ -23,6 +22,6 @@ class SerialComm:
             return s
 
     @classmethod
-    def ser_close(cls):
+    def close_ser(cls):
         """Cierra el puerto serial"""
         cls.__ser.close()

@@ -1,21 +1,21 @@
 import json
-import threading
 import models.serial_comm as sc
 import sqlite3
 import datetime as dt
 from config.constants import DB_NAME
+from time import sleep
 
 
-class SerialReader(threading.Thread):
+class SerialReader:
 
     def __init__(self):
-        super().__init__()
-        self.setDaemon(False)
         self.__conn = sqlite3.connect(str(DB_NAME), detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES)
         self.__cursor = self.__conn.cursor()
 
     def run(self):
+
         while True:
+            sleep(0.1)
             s = sc.SerialComm.ser_read_line()
             if s:
                 try:
@@ -24,6 +24,7 @@ class SerialReader(threading.Thread):
                     print('Error converting string to json')
                     continue
                 if self.check_json(j):
+                    print('Recibido con exito: {}'.format(j))
                     try:
                         node = list(j.keys())[0]
                         self.__cursor.execute('''INSERT INTO temperature(temperature, time_stamp, node_id)

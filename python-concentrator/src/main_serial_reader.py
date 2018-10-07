@@ -8,15 +8,10 @@ if __name__ == '__main__':
         print('The database does not exist. Create it first.')
         exit(1)
     serial_reader = SerialReader()
-    workers = [serial_reader]
-
-    for w in workers:
-        w.start()
     try:
-        for w in workers:
-            w.join()
+        serial_reader.run()
     except KeyboardInterrupt:
-        sc.SerialComm.ser_close()
+        sc.SerialComm.close_ser()
         serial_reader.close_db()
     print('Exiting...')
 

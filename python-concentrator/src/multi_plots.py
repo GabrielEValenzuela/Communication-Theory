@@ -50,7 +50,7 @@ app.layout = html.Div([
     events=[dash.dependencies.Event('graph-update', 'interval')]
 )
 def update_graph(data_names):
-    add_new_values()  # TODO: Remover, solo para simular valores
+    # add_new_values()  # TODO: Remover, solo para simular valores
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     graphs = []
