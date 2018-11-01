@@ -1,5 +1,3 @@
-import datetime as dt
-import random
 import sqlite3
 from collections import deque
 
@@ -10,7 +8,7 @@ import plotly.graph_objs as go
 
 from config.constants import DB_NAME, VALID_NODES
 
-MAX_LEN = 15
+MAX_DATA_LEN = 15
 
 DB_PATH = str(DB_NAME)
 
@@ -20,10 +18,10 @@ app.layout = html.Div([
     html.Div([html.H2('Temperature', style={'float': 'left'})]),
     dcc.Dropdown(id='lora-nodes',
                  options=[{'label': v, 'value': k} for k, v in VALID_NODES.items()],
-                 value=list(VALID_NODES.keys()),
+                 value=list(VALID_NODES.keys())[:3],
                  multi=True),
     html.Div(children=html.Div(id='graphs'), className='row'),
-    dcc.Interval(id='graph-update', interval=7000),
+    dcc.Interval(id='graph-update', interval=10000),
 ], className="container", style={'width': '98%', 'margin-left': 10, 'margin-right': 10, 'max-width': 50000})
 
 
@@ -45,9 +43,9 @@ def update_graph(data_names):
 
     for data_name in data_names:
         temp_values = cursor.execute('''SELECT time_stamp, temperature FROM temperature 
-        WHERE node_id == {} ORDER BY time_stamp DESC LIMIT {}'''.format(data_name, MAX_LEN)).fetchall()
-        x_values = deque(maxlen=MAX_LEN)
-        y_values = deque(maxlen=MAX_LEN)
+        WHERE node_id == {} ORDER BY time_stamp DESC LIMIT {}'''.format(data_name, MAX_DATA_LEN)).fetchall()
+        x_values = deque(maxlen=MAX_DATA_LEN)
+        y_values = deque(maxlen=MAX_DATA_LEN)
         for t in temp_values:
             x_values.append(t[0])
             y_values.append(t[1])
@@ -58,18 +56,23 @@ def update_graph(data_names):
             fill="tozeroy",
             fillcolor="#6897bb"
         )
+        if (not x_values) or (not y_values):
+            continue
 
-        layout = go.Layout(xaxis=dict(range=[min(x_values), max(x_values)]),
-                           yaxis=dict(range=[min(y_values), max(y_values)]),
-                           margin={'l': 50, 'r': 1, 't': 45, 'b': 30},
-                           title='{}'.format(data_name),
-                           autosize=True)
+        try:
+            layout = go.Layout(xaxis=dict(range=[min(x_values), max(x_values)]),
+                               yaxis=dict(range=[min(y_values), max(y_values)]),
+                               margin={'l': 50, 'r': 1, 't': 45, 'b': 30},
+                               title='{} - {}'.format(data_name, VALID_NODES[data_name][:30]),
+                               autosize=True)
 
-        graphs.append(html.Div(dcc.Graph(
-            id=data_name,
-            animate=True,
-            figure={'data': [data], 'layout': layout}
-        ), className=class_choice))
+            graphs.append(html.Div(dcc.Graph(
+                id=data_name,
+                animate=True,
+                figure={'data': [data], 'layout': layout}
+            ), className=class_choice))
+        except (ValueError, TypeError, KeyError):
+            print("Error adding layout {} to graph.".format(data_name))
     conn.close()
     return graphs
 
