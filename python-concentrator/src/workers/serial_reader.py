@@ -20,7 +20,7 @@ class SerialReader:
             if s:
                 try:
                     j = json.loads(s)
-                except json.JSONDecodeError:
+                except (json.JSONDecodeError, UnicodeDecodeError):
                     print('Error converting string to json')
                     continue
                 if self.check_json(j):

@@ -1,10 +1,6 @@
 import sqlite3
-import datetime as dt
-import random
-from config.constants import VALID_NODES, DB_NAME
 
-MAX_TEMP = 41.5
-MIN_TEMP = 1.3
+from config.constants import VALID_NODES, DB_NAME
 
 if __name__ == '__main__':
     conn = sqlite3.connect(str(DB_NAME))

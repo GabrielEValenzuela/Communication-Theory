@@ -9,29 +9,12 @@ import dash_html_components as html
 import plotly.graph_objs as go
 
 from config.constants import DB_NAME, VALID_NODES
-from db.initial_values import MIN_TEMP, MAX_TEMP
 
 MAX_LEN = 15
 
 DB_PATH = str(DB_NAME)
 
 app = dash.Dash('vehicle-data')
-
-
-def add_new_values():
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    try:
-        for node in VALID_NODES.keys():
-            cursor.execute('''INSERT INTO temperature(temperature, time_stamp, node_id)
-                    VALUES 
-                    (?, ?, ?)
-                    ''', (round(random.uniform(MIN_TEMP, MAX_TEMP), 1), dt.datetime.now(), node))
-    except sqlite3.DatabaseError as e:
-        print('error en comando: {}'.format(e))
-    conn.commit()
-    conn.close()
-
 
 app.layout = html.Div([
     html.Div([html.H2('Temperature', style={'float': 'left'})]),
@@ -40,7 +23,7 @@ app.layout = html.Div([
                  value=list(VALID_NODES.keys()),
                  multi=True),
     html.Div(children=html.Div(id='graphs'), className='row'),
-    dcc.Interval(id='graph-update', interval=5000),
+    dcc.Interval(id='graph-update', interval=7000),
 ], className="container", style={'width': '98%', 'margin-left': 10, 'margin-right': 10, 'max-width': 50000})
 
 
@@ -50,7 +33,6 @@ app.layout = html.Div([
     events=[dash.dependencies.Event('graph-update', 'interval')]
 )
 def update_graph(data_names):
-    # add_new_values()  # TODO: Remover, solo para simular valores
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     graphs = []

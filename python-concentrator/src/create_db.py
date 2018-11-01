@@ -7,7 +7,7 @@ if __name__ == '__main__':
     cursor = conn.cursor()
     cursor.execute('''CREATE TABLE IF NOT EXISTS nodes
     (node_number INTEGER PRIMARY KEY ,
-     node_name VARCHAR(30) NOT NULL );''')
+     node_name VARCHAR(100) NOT NULL );''')
     cursor.execute('''CREATE TABLE IF NOT EXISTS temperature
     (temperature_id INTEGER PRIMARY KEY,
     temperature REAL NOT NULL,
